@@ -14,13 +14,16 @@ namespace EntityFrameworkPlayground.API.Controllers
     {
         private readonly IMapper mapper;
         private readonly IBooksRepository booksRepository;
+        private readonly IAuthorRepository authorRepository;
 
         public BooksController(
             IMapper mapper,
-            IBooksRepository booksRepository)
+            IBooksRepository booksRepository,
+            IAuthorRepository authorRepository)
         {
             this.mapper = mapper;
             this.booksRepository = booksRepository;
+            this.authorRepository = authorRepository;
         }
 
         // GET: api/Books
@@ -45,18 +48,25 @@ namespace EntityFrameworkPlayground.API.Controllers
 
         // POST: api/Books
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] BookDTO value)
+        public async Task<IActionResult> Post(int authorId, [FromBody] BookForCreationDTO value)
         {
-            try
+            if (value == null)
             {
-                var newBook = mapper.Map<Book>(value);
-                await booksRepository.Create(newBook);
-                return Created("GetBook", mapper.Map<BookDTO>(newBook));
+                return BadRequest();
             }
-            catch (System.Exception ex)
+
+            var authorExists = await authorRepository.Exists(authorId);
+
+            if (!authorExists)
             {
-                return BadRequest(ex);
+                return NotFound();
             }
+
+            var bookEntity = mapper.Map<Book>(value);
+            await booksRepository.AddBookToAuthor(authorId, bookEntity);
+            var bookToReturn = mapper.Map<BookDTO>(bookEntity);
+
+            return Created("/", bookToReturn);
         }
 
         // PUT: api/Books/5

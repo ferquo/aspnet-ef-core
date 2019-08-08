@@ -9,6 +9,6 @@ namespace EntityFrameworkPlayground.DataAccess.Repositories.Interfaces
         IEnumerable<Book> GetAllBooks();
         IEnumerable<Book> GetAllBooksByAuthor(int authorId);
         Task<Book> GetbyIdIncludeAuthor(int id);
-        //Task Create(Book book);
+        Task AddBookToAuthor(int authorId, Book book);
     }
 }

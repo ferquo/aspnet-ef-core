@@ -8,5 +8,6 @@ namespace EntityFrameworkPlayground.DataAccess.Repositories.Interfaces
     {
         IEnumerable<Author> GetAllAuthors();
         Task<Author> GetAuthorById(int id);
+        Task<bool> Exists(int id);
     }
 }

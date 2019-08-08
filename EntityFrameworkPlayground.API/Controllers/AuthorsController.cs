@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using EntityFrameworkPlayground.API.ViewModels;
 using EntityFrameworkPlayground.DataAccess.Repositories.Interfaces;
+using EntityFrameworkPlayground.Domain.Entitities;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -44,8 +45,16 @@ namespace EntityFrameworkPlayground.API.Controllers
 
         // POST: api/Authors
         [HttpPost]
-        public void Post([FromBody] string value)
+        public async Task<IActionResult> Post([FromBody] AuthorForCreationDTO author)
         {
+            if (author == null)
+            {
+                return BadRequest();
+            }
+            var authorEntity = mapper.Map<Author>(author);
+            await authorRepository.Create(authorEntity);
+            var authorToReturn = mapper.Map<AuthorDTO>(authorEntity);
+            return Created("GetAuthor", authorToReturn);
         }
 
         // PUT: api/Authors/5

@@ -35,5 +35,11 @@ namespace EntityFrameworkPlayground.DataAccess.Repositories
             //    Author = book.Author.Name
             //})
             .SingleAsync(book => book.BookId == id);
+
+        public async Task AddBookToAuthor(int authorId, Book book)
+        {
+            book.AuthorId = authorId;
+            await Create(book);
+        }
     }
 }

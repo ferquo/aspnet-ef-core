@@ -9,9 +9,15 @@ namespace EntityFrameworkPlayground.API
     {
         public MappingProfile()
         {
+            #region Books
             CreateMap<Book, BookDTO>().ForMember(
                 dest => dest.Id,
                 opt => opt.MapFrom(src => src.BookId)); ;
+
+            CreateMap<BookForCreationDTO, Book>();
+            #endregion
+
+            #region Authors
             CreateMap<Author, AuthorDTO>()
                 .ForMember(
                 dest => dest.Id,
@@ -19,6 +25,9 @@ namespace EntityFrameworkPlayground.API
                 .ForMember(
                 dest => dest.Books,
                 opt => opt.MapFrom(src => src.Books));
+
+            CreateMap<AuthorForCreationDTO, Author>();
+            #endregion
 
         }
     }

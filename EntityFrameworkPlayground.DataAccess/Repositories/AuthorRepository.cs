@@ -22,5 +22,8 @@ namespace EntityFrameworkPlayground.DataAccess.Repositories
         {
             return await db.Authors.Include(x => x.Books).SingleAsync(x => x.AuthorId == id);
         }
+
+        public async Task<bool> Exists(int id)
+            => await db.Authors.AsNoTracking().AnyAsync(x => x.AuthorId == id);
     }
 }
