@@ -56,7 +56,6 @@ namespace EntityFrameworkPlayground.API.Controllers
             }
 
             var authorExists = await authorRepository.Exists(authorId);
-
             if (!authorExists)
             {
                 return NotFound();
@@ -87,18 +86,22 @@ namespace EntityFrameworkPlayground.API.Controllers
 
         // DELETE: api/ApiWithActions/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(int authorId, int id)
         {
-            try
+            var authorExists = await authorRepository.Exists(authorId);
+            if (!authorExists)
             {
-                await booksRepository.Delete(id);
-                return Ok();
+                return NotFound();
             }
-            catch (System.Exception ex)
+
+            var bookFromRepo = await booksRepository.GetById(id);
+            if (bookFromRepo == null)
             {
-                return BadRequest();
-                throw;
+                return NotFound();
             }
+
+            await booksRepository.Delete(id);
+            return NoContent();
         }
     }
 }

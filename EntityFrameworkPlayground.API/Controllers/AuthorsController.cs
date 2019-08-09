@@ -65,8 +65,16 @@ namespace EntityFrameworkPlayground.API.Controllers
 
         // DELETE: api/ApiWithActions/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
+            var authorExists = await authorRepository.Exists(id);
+            if (!authorExists)
+            {
+                return NotFound();
+            }
+
+            await authorRepository.Delete(id);
+            return NoContent();
         }
     }
 }
