@@ -56,6 +56,11 @@ namespace EntityFrameworkPlayground.API.Controllers
                 return BadRequest();
             }
 
+            if (!ModelState.IsValid)
+            {
+                return new UnprocessableEntityObjectResult(ModelState);
+            }
+
             var authorExists = await authorRepository.Exists(authorId);
             if (!authorExists)
             {
@@ -85,6 +90,11 @@ namespace EntityFrameworkPlayground.API.Controllers
                 return NotFound();
             }
 
+            if (!ModelState.IsValid)
+            {
+                return new UnprocessableEntityObjectResult(ModelState);
+            }
+
             mapper.Map(value, bookToUpdate);
             await booksRepository.Update(id, bookToUpdate);
 
@@ -92,7 +102,7 @@ namespace EntityFrameworkPlayground.API.Controllers
         }
 
         [HttpPatch("{id}")]
-        public async Task<IActionResult> Patch(int authorId, int id, [FromBody] JsonPatchDocument patchDoc)
+        public async Task<IActionResult> Patch(int authorId, int id, [FromBody] JsonPatchDocument<BookForUpdateDTO> patchDoc)
         {
             var authorExists = await authorRepository.Exists(authorId);
             if (!authorExists)
@@ -107,7 +117,14 @@ namespace EntityFrameworkPlayground.API.Controllers
             }
 
             var bookToPatch = mapper.Map<BookForUpdateDTO>(bookFromRepo);
-            patchDoc.ApplyTo(bookToPatch);
+            patchDoc.ApplyTo(bookToPatch, ModelState);
+
+            TryValidateModel(bookToPatch);
+            if (!ModelState.IsValid)
+            {
+                return new UnprocessableEntityObjectResult(ModelState);
+            }
+
             mapper.Map(bookToPatch, bookFromRepo);
             await booksRepository.Update(id, bookFromRepo);
 
@@ -128,6 +145,11 @@ namespace EntityFrameworkPlayground.API.Controllers
             if (bookFromRepo == null)
             {
                 return NotFound();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return new UnprocessableEntityObjectResult(ModelState);
             }
 
             await booksRepository.Delete(id);
