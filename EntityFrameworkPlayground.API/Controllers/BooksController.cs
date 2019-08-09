@@ -2,6 +2,7 @@
 using EntityFrameworkPlayground.API.ViewModels;
 using EntityFrameworkPlayground.DataAccess.Repositories.Interfaces;
 using EntityFrameworkPlayground.Domain.Entitities;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -70,18 +71,47 @@ namespace EntityFrameworkPlayground.API.Controllers
 
         // PUT: api/Books/5
         [HttpPut("{id}")]
-        public async Task Put(int id, [FromBody] Book value)
+        public async Task<IActionResult> Put(int authorId, int id, [FromBody] BookForUpdateDTO value)
         {
-            try
+            var authorExists = await authorRepository.Exists(authorId);
+            if (!authorExists)
             {
-                await booksRepository.Update(id, value);
-                Ok(value);
+                return NotFound();
             }
-            catch (System.Exception ex)
-            {
 
-                throw;
+            var bookToUpdate = await booksRepository.GetById(id);
+            if (bookToUpdate == null)
+            {
+                return NotFound();
             }
+
+            mapper.Map(value, bookToUpdate);
+            await booksRepository.Update(id, bookToUpdate);
+
+            return Ok(mapper.Map<BookDTO>(bookToUpdate));
+        }
+
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> Patch(int authorId, int id, [FromBody] JsonPatchDocument patchDoc)
+        {
+            var authorExists = await authorRepository.Exists(authorId);
+            if (!authorExists)
+            {
+                return NotFound();
+            }
+
+            var bookFromRepo = await booksRepository.GetById(id);
+            if (bookFromRepo == null)
+            {
+                return NotFound();
+            }
+
+            var bookToPatch = mapper.Map<BookForUpdateDTO>(bookFromRepo);
+            patchDoc.ApplyTo(bookToPatch);
+            mapper.Map(bookToPatch, bookFromRepo);
+            await booksRepository.Update(id, bookFromRepo);
+
+            return Ok(mapper.Map<BookDTO>(bookFromRepo));
         }
 
         // DELETE: api/ApiWithActions/5

@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using EntityFrameworkPlayground.API.ViewModels;
 using EntityFrameworkPlayground.Domain.Entitities;
-using System.Collections.Generic;
 
 namespace EntityFrameworkPlayground.API
 {
@@ -15,6 +14,8 @@ namespace EntityFrameworkPlayground.API
                 opt => opt.MapFrom(src => src.BookId)); ;
 
             CreateMap<BookForCreationDTO, Book>();
+            CreateMap<BookForUpdateDTO, Book>();
+            CreateMap<Book, BookForUpdateDTO>();
             #endregion
 
             #region Authors
