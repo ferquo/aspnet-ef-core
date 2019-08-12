@@ -21,9 +21,14 @@ namespace EntityFrameworkPlayground.DataAccess.Repositories
 
         public PagedList<Author> GetAllAuthors(PagingResourceParameters paging)
         {
-            var query = db.Authors
+            var query = (IQueryable<Author>)db.Authors
                 .Include(x => x.Books)
                 .OrderBy(author => author.Name);
+
+            if (!string.IsNullOrEmpty(paging.SearchQuery))
+            {
+                query = query.Where(x => x.Name.ToLowerInvariant().Contains(paging.SearchQuery.ToLowerInvariant()));
+            }
 
             return PagedList<Author>.Create(query, paging.PageNumber, paging.PageSize);
         }

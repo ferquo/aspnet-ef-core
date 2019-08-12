@@ -64,6 +64,7 @@ namespace EntityFrameworkPlayground.API.Controllers
                     return urlHelper.Link("GetAuthors",
                         new
                         {
+                            searchQuery = pagingResourceParameters.SearchQuery,
                             pageNumber = pagingResourceParameters.PageNumber - 1,
                             pageSize = pagingResourceParameters.PageSize
                         });
@@ -71,6 +72,7 @@ namespace EntityFrameworkPlayground.API.Controllers
                     return urlHelper.Link("GetAuthors",
                         new
                         {
+                            searchQuery = pagingResourceParameters.SearchQuery,
                             pageNumber = pagingResourceParameters.PageNumber + 1,
                             pageSize = pagingResourceParameters.PageSize
                         });
@@ -78,6 +80,7 @@ namespace EntityFrameworkPlayground.API.Controllers
                     return urlHelper.Link("GetAuthors",
                         new
                         {
+                            searchQuery = pagingResourceParameters.SearchQuery,
                             pageNumber = pagingResourceParameters.PageNumber,
                             pageSize = pagingResourceParameters.PageSize
                         });

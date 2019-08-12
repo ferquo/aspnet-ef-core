@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace EntityFrameworkPlayground.Domain.Models
+﻿namespace EntityFrameworkPlayground.Domain.Models
 {
     public class PagingResourceParameters
     {
@@ -15,5 +11,7 @@ namespace EntityFrameworkPlayground.Domain.Models
             get => pageSize;
             set => pageSize = (value > maximumPageSize) ? maximumPageSize : value;
         }
+
+        public string SearchQuery { get; set; }
     }
 }
