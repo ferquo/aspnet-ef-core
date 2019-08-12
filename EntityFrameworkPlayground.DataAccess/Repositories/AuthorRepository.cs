@@ -1,5 +1,6 @@
 ﻿using EntityFrameworkPlayground.DataAccess.Repositories.Interfaces;
 using EntityFrameworkPlayground.Domain.Entitities;
+using EntityFrameworkPlayground.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,15 @@ namespace EntityFrameworkPlayground.DataAccess.Repositories
         public IEnumerable<Author> GetAllAuthors()
         {
             return db.Authors.Include(x => x.Books).ToList();
+        }
+
+        public PagedList<Author> GetAllAuthors(PagingResourceParameters paging)
+        {
+            var query = db.Authors
+                .Include(x => x.Books)
+                .OrderBy(author => author.Name);
+
+            return PagedList<Author>.Create(query, paging.PageNumber, paging.PageSize);
         }
 
         public async Task<Author> GetAuthorById(int id)

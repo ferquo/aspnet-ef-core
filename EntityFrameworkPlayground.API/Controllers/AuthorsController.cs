@@ -2,7 +2,9 @@
 using EntityFrameworkPlayground.API.ViewModels;
 using EntityFrameworkPlayground.DataAccess.Repositories.Interfaces;
 using EntityFrameworkPlayground.Domain.Entitities;
+using EntityFrameworkPlayground.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -14,21 +16,72 @@ namespace EntityFrameworkPlayground.API.Controllers
     {
         private readonly IMapper mapper;
         private readonly IAuthorRepository authorRepository;
+        private readonly IUrlHelper urlHelper;
 
         public AuthorsController(
             IMapper mapper,
-            IAuthorRepository authorRepository)
+            IAuthorRepository authorRepository,
+            IUrlHelper urlHelper)
         {
             this.mapper = mapper;
             this.authorRepository = authorRepository;
+            this.urlHelper = urlHelper;
         }
 
         // GET: api/authors
-        [HttpGet]
-        public IActionResult Get()
+        [HttpGet(Name = "GetAuthors")]
+        public IActionResult Get([FromQuery]PagingResourceParameters paging)
         {
-            var authors = authorRepository.GetAllAuthors();
+            var authors = authorRepository.GetAllAuthors(paging);
+
+            var previousPageLink = authors.HasPrevious ?
+                CreateResourceUri(paging, ResourceUriType.PreviousPage) : null;
+
+            var nextPageLink = authors.HasNext ?
+                CreateResourceUri(paging, ResourceUriType.NextPage) : null;
+
+            var paginationMetaData = new
+            {
+                totalCount = authors.TotalCount,
+                pageSize = authors.PageSize,
+                currentPage = authors.CurrentPage,
+                totalPages = authors.TotalPages,
+                previousPageLink,
+                nextPageLink
+            };
+            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(paginationMetaData));
+
             return Ok(mapper.Map<IEnumerable<AuthorDTO>>(authors));
+        }
+
+        private string CreateResourceUri(
+            PagingResourceParameters pagingResourceParameters,
+            ResourceUriType type)
+        {
+            switch (type)
+            {
+                case ResourceUriType.PreviousPage:
+                    return urlHelper.Link("GetAuthors",
+                        new
+                        {
+                            pageNumber = pagingResourceParameters.PageNumber - 1,
+                            pageSize = pagingResourceParameters.PageSize
+                        });
+                case ResourceUriType.NextPage:
+                    return urlHelper.Link("GetAuthors",
+                        new
+                        {
+                            pageNumber = pagingResourceParameters.PageNumber + 1,
+                            pageSize = pagingResourceParameters.PageSize
+                        });
+                default:
+                    return urlHelper.Link("GetAuthors",
+                        new
+                        {
+                            pageNumber = pagingResourceParameters.PageNumber,
+                            pageSize = pagingResourceParameters.PageSize
+                        });
+            }
         }
 
         // GET: api/Authors/5
