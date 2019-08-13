@@ -59,7 +59,9 @@ namespace EntityFrameworkPlayground.API.Controllers
                 return author;
             });
 
-            return Ok(authorsToReturn);
+            var authorsWrapper = new LinkedCollectionResourceWrapperDTO<AuthorDTO>(authorsToReturn);
+
+            return Ok(CreateLinksForAuthors(authorsWrapper));
         }
 
         private string CreateResourceUri(
@@ -173,10 +175,17 @@ namespace EntityFrameworkPlayground.API.Controllers
             return author;
         }
 
-        //private LinkedCollectionResourceWrapperDTO<AuthorDTO> CreateLinksForAuthorsCollection(IEnumerable<AuthorDTO> authors)
-        //{
-        //    var authorsCollection = new LinkedCollectionResourceWrapperDTO<AuthorDTO>(authors);
-        //    return authorsCollection;
-        //}
+        private LinkedCollectionResourceWrapperDTO<AuthorDTO> CreateLinksForAuthors(
+            LinkedCollectionResourceWrapperDTO<AuthorDTO> authorsWrapper)
+        {
+            authorsWrapper.Links = new List<LinkDTO>();
+
+            authorsWrapper.Links.Add(new LinkDTO(
+                href: urlHelper.Link("GetAuthors", new { }),
+                rel: "self",
+                method: "GET"));
+
+            return authorsWrapper;
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using EntityFrameworkPlayground.DataAccess.Repositories.Interfaces;
 using EntityFrameworkPlayground.Domain.Entitities;
+using EntityFrameworkPlayground.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,24 +17,26 @@ namespace EntityFrameworkPlayground.DataAccess.Repositories
         public IEnumerable<Book> GetAllBooks()
             => db.Books.AsNoTracking()
             .Include(x => x.Author)
-            //.Select(book => new {
-            //    BookId = book.BookId,
-            //    Title = book.Title,
-            //    Author = book.Author.Name
-            //})
             .ToList();
 
-        public IEnumerable<Book> GetAllBooksByAuthor(int authorId)
-            => db.Books.AsNoTracking().Where(x => x.AuthorId == authorId).ToList();
+        public PagedList<Book> GetAllBooksByAuthor(int authorId, PagingResourceParameters paging)
+        {
+            var query = db.Books
+                .AsNoTracking()
+                .Where(x => x.AuthorId == authorId)
+                .OrderBy(book => book.Title).AsQueryable();
+
+            if (!string.IsNullOrEmpty(paging.SearchQuery))
+            {
+                query = query.Where(x => x.Title.ToLowerInvariant().Contains(paging.SearchQuery.ToLowerInvariant()));
+            }
+
+            return PagedList<Book>.Create(query, paging.PageNumber, paging.PageSize);
+        }
 
         public async Task<Book> GetbyIdIncludeAuthor(int id)
             => await db.Books
             .Include(x => x.Author)
-            //.Select(book => new {
-            //    BookId = book.BookId,
-            //    Title = book.Title,
-            //    Author = book.Author.Name
-            //})
             .SingleAsync(book => book.BookId == id);
 
         public async Task AddBookToAuthor(int authorId, Book book)

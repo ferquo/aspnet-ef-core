@@ -2,8 +2,10 @@
 using EntityFrameworkPlayground.API.ViewModels;
 using EntityFrameworkPlayground.DataAccess.Repositories.Interfaces;
 using EntityFrameworkPlayground.Domain.Entitities;
+using EntityFrameworkPlayground.Domain.Models;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -33,15 +35,68 @@ namespace EntityFrameworkPlayground.API.Controllers
 
         // GET: api/Books
         [HttpGet(Name = "GetBooks")]
-        public IActionResult Get(int authorId)
+        public IActionResult Get(int authorId, [FromQuery]PagingResourceParameters paging)
         {
-            var books = mapper.Map<IEnumerable<BookDTO>>(booksRepository.GetAllBooksByAuthor(authorId));
-            books = books.Select(book =>
+            var books = booksRepository.GetAllBooksByAuthor(authorId, paging);
+
+            var previousPageLink = books.HasPrevious ?
+                CreateResourceUri(paging, ResourceUriType.PreviousPage) : null;
+
+            var nextPageLink = books.HasNext ?
+                CreateResourceUri(paging, ResourceUriType.NextPage) : null;
+
+            var paginationMetaData = new
             {
-                book = CreateLinksForAuthorResource(book);
+                totalCount = books.TotalCount,
+                pageSize = books.PageSize,
+                currentPage = books.CurrentPage,
+                totalPages = books.TotalPages,
+                previousPageLink,
+                nextPageLink
+            };
+            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(paginationMetaData));
+
+            var booksToReturn = mapper.Map<IEnumerable<BookDTO>>(books);
+            booksToReturn = booksToReturn.Select(book =>
+            {
+                book = CreateLinksForBookResource(book);
                 return book;
             });
-            return Ok(books);
+            var wrapper = new LinkedCollectionResourceWrapperDTO<BookDTO>(booksToReturn);
+            return Ok(CreateLinksForBooks(wrapper));
+        }
+
+        private string CreateResourceUri(
+            PagingResourceParameters pagingResourceParameters,
+            ResourceUriType type)
+        {
+            switch (type)
+            {
+                case ResourceUriType.PreviousPage:
+                    return urlHelper.Link("GetBooks",
+                        new
+                        {
+                            searchQuery = pagingResourceParameters.SearchQuery,
+                            pageNumber = pagingResourceParameters.PageNumber - 1,
+                            pageSize = pagingResourceParameters.PageSize
+                        });
+                case ResourceUriType.NextPage:
+                    return urlHelper.Link("GetBooks",
+                        new
+                        {
+                            searchQuery = pagingResourceParameters.SearchQuery,
+                            pageNumber = pagingResourceParameters.PageNumber + 1,
+                            pageSize = pagingResourceParameters.PageSize
+                        });
+                default:
+                    return urlHelper.Link("GetBooks",
+                        new
+                        {
+                            searchQuery = pagingResourceParameters.SearchQuery,
+                            pageNumber = pagingResourceParameters.PageNumber,
+                            pageSize = pagingResourceParameters.PageSize
+                        });
+            }
         }
 
         // GET: api/Books/5
@@ -53,7 +108,7 @@ namespace EntityFrameworkPlayground.API.Controllers
             {
                 return NotFound();
             }
-            return Ok(CreateLinksForAuthorResource(mapper.Map<BookDTO>(book)));
+            return Ok(CreateLinksForBookResource(mapper.Map<BookDTO>(book)));
         }
 
         // POST: api/Books
@@ -165,7 +220,7 @@ namespace EntityFrameworkPlayground.API.Controllers
             return NoContent();
         }
 
-        private BookDTO CreateLinksForAuthorResource(BookDTO book)
+        private BookDTO CreateLinksForBookResource(BookDTO book)
         {
             book.Links = new List<LinkDTO>();
 
@@ -200,6 +255,19 @@ namespace EntityFrameworkPlayground.API.Controllers
                 method: "DELETE"));
 
             return book;
+        }
+
+        private LinkedCollectionResourceWrapperDTO<BookDTO> CreateLinksForBooks(
+            LinkedCollectionResourceWrapperDTO<BookDTO> booksWrapper)
+        {
+            booksWrapper.Links = new List<LinkDTO>();
+
+            booksWrapper.Links.Add(new LinkDTO(
+                href: urlHelper.Link("GetBooks", new { }),
+                rel: "self",
+                method: "GET"));
+
+            return booksWrapper;
         }
     }
 }
