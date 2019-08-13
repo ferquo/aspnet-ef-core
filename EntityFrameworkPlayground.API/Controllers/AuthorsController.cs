@@ -6,6 +6,7 @@ using EntityFrameworkPlayground.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace EntityFrameworkPlayground.API.Controllers
@@ -51,7 +52,14 @@ namespace EntityFrameworkPlayground.API.Controllers
             };
             Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(paginationMetaData));
 
-            return Ok(mapper.Map<IEnumerable<AuthorDTO>>(authors));
+            var authorsToReturn = mapper.Map<IEnumerable<AuthorDTO>>(authors);
+            authorsToReturn = authorsToReturn.Select(author =>
+            {
+                author = CreateLinksForAuthorResource(author);
+                return author;
+            });
+
+            return Ok(authorsToReturn);
         }
 
         private string CreateResourceUri(
@@ -96,11 +104,11 @@ namespace EntityFrameworkPlayground.API.Controllers
             {
                 NotFound();
             }
-            return Ok(mapper.Map<AuthorDTO>(author));
+            return Ok(CreateLinksForAuthorResource(mapper.Map<AuthorDTO>(author)));
         }
 
         // POST: api/Authors
-        [HttpPost]
+        [HttpPost(Name = "CreateAuthor")]
         public async Task<IActionResult> Post([FromBody] AuthorForCreationDTO author)
         {
             if (author == null)
@@ -114,13 +122,13 @@ namespace EntityFrameworkPlayground.API.Controllers
         }
 
         // PUT: api/Authors/5
-        [HttpPut("{id}")]
+        [HttpPut("{id}", Name = "UpdateAuthor")]
         public void Put(int id, [FromBody] string value)
         {
         }
 
         // DELETE: api/ApiWithActions/5
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}", Name = "DeleteAuthor")]
         public async Task<IActionResult> Delete(int id)
         {
             var authorExists = await authorRepository.Exists(id);
@@ -132,5 +140,43 @@ namespace EntityFrameworkPlayground.API.Controllers
             await authorRepository.Delete(id);
             return NoContent();
         }
+
+        private AuthorDTO CreateLinksForAuthorResource(AuthorDTO author)
+        {
+            author.Links = new List<LinkDTO>();
+
+            author.Links.Add(new LinkDTO(
+                href: urlHelper.Link("GetAuthor", new { id = author.Id }),
+                rel: "self",
+                method: "GET"));
+
+            author.Links.Add(new LinkDTO(
+                href: urlHelper.Link("GetBooks", new { authorId = author.Id }),
+                rel: "children",
+                method: "GET"));
+
+            author.Links.Add(new LinkDTO(
+                href: urlHelper.Link("CreateAuthor", null),
+                rel: "create-author",
+                method: "POST"));
+
+            author.Links.Add(new LinkDTO(
+                href: urlHelper.Link("UpdateAuthor", new { id = author.Id }),
+                rel: "update-author",
+                method: "PUT"));
+
+            author.Links.Add(new LinkDTO(
+                href: urlHelper.Link("DeleteAuthor", new { id = author.Id }),
+                rel: "delete-author",
+                method: "DELETE"));
+
+            return author;
+        }
+
+        //private LinkedCollectionResourceWrapperDTO<AuthorDTO> CreateLinksForAuthorsCollection(IEnumerable<AuthorDTO> authors)
+        //{
+        //    var authorsCollection = new LinkedCollectionResourceWrapperDTO<AuthorDTO>(authors);
+        //    return authorsCollection;
+        //}
     }
 }
