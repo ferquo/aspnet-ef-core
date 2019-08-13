@@ -35,35 +35,40 @@ namespace EntityFrameworkPlayground.API.Controllers
 
         // GET: api/Books
         [HttpGet(Name = "GetBooks")]
-        public IActionResult Get(int authorId, [FromQuery]PagingResourceParameters paging)
+        public IActionResult Get(int authorId, [FromQuery]PagingResourceParameters paging, [FromHeader(Name = "Accept")]string mediaType)
         {
             var books = booksRepository.GetAllBooksByAuthor(authorId, paging);
-
-            var previousPageLink = books.HasPrevious ?
-                CreateResourceUri(paging, ResourceUriType.PreviousPage) : null;
-
-            var nextPageLink = books.HasNext ?
-                CreateResourceUri(paging, ResourceUriType.NextPage) : null;
-
-            var paginationMetaData = new
-            {
-                totalCount = books.TotalCount,
-                pageSize = books.PageSize,
-                currentPage = books.CurrentPage,
-                totalPages = books.TotalPages,
-                previousPageLink,
-                nextPageLink
-            };
-            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(paginationMetaData));
-
             var booksToReturn = mapper.Map<IEnumerable<BookDTO>>(books);
             booksToReturn = booksToReturn.Select(book =>
             {
                 book = CreateLinksForBookResource(book);
                 return book;
             });
-            var wrapper = new LinkedCollectionResourceWrapperDTO<BookDTO>(booksToReturn);
-            return Ok(CreateLinksForBooks(wrapper));
+
+            if (mediaType == "application/vnd.hateoas+json")
+            {
+
+                var wrapper = new LinkedCollectionResourceWrapperDTO<BookDTO>(booksToReturn);
+                return Ok(CreateLinksForBooks(wrapper, paging, books.HasPrevious, books.HasNext));
+            }
+            else
+            {
+                var previousPageLink = books.HasPrevious ?
+                    CreateResourceUri(paging, ResourceUriType.PreviousPage) : null;
+                var nextPageLink = books.HasNext ?
+                    CreateResourceUri(paging, ResourceUriType.NextPage) : null;
+                var paginationMetaData = new
+                {
+                    totalCount = books.TotalCount,
+                    pageSize = books.PageSize,
+                    currentPage = books.CurrentPage,
+                    totalPages = books.TotalPages,
+                    previousPageLink,
+                    nextPageLink
+                };
+                Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(paginationMetaData));
+                return Ok(booksToReturn);
+            }
         }
 
         private string CreateResourceUri(
@@ -258,7 +263,10 @@ namespace EntityFrameworkPlayground.API.Controllers
         }
 
         private LinkedCollectionResourceWrapperDTO<BookDTO> CreateLinksForBooks(
-            LinkedCollectionResourceWrapperDTO<BookDTO> booksWrapper)
+            LinkedCollectionResourceWrapperDTO<BookDTO> booksWrapper,
+            PagingResourceParameters pagingResourceParameters,
+            bool hasPrevious,
+            bool hasNext)
         {
             booksWrapper.Links = new List<LinkDTO>();
 
@@ -266,6 +274,32 @@ namespace EntityFrameworkPlayground.API.Controllers
                 href: urlHelper.Link("GetBooks", new { }),
                 rel: "self",
                 method: "GET"));
+
+            if (hasPrevious)
+            {
+                booksWrapper.Links.Add(new LinkDTO(
+                    href: urlHelper.Link("GetBooks", new
+                    {
+                        searchQuery = pagingResourceParameters.SearchQuery,
+                        pageNumber = pagingResourceParameters.PageNumber - 1,
+                        pageSize = pagingResourceParameters.PageSize
+                    }),
+                    rel: "previous",
+                    method: "GET"));
+            }
+
+            if (hasNext)
+            {
+                booksWrapper.Links.Add(new LinkDTO(
+                    href: urlHelper.Link("GetBooks", new
+                    {
+                        searchQuery = pagingResourceParameters.SearchQuery,
+                        pageNumber = pagingResourceParameters.PageNumber + 1,
+                        pageSize = pagingResourceParameters.PageSize
+                    }),
+                    rel: "next",
+                    method: "GET"));
+            }
 
             return booksWrapper;
         }
