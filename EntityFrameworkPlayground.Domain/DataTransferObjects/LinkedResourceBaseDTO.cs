@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace EntityFrameworkPlayground.API.ViewModels
+namespace EntityFrameworkPlayground.Domain.DataTransferObjects
 {
     public abstract class LinkedResourceBaseDTO
     {

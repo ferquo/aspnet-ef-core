@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using EntityFrameworkPlayground.API.ViewModels;
 using EntityFrameworkPlayground.DataAccess.Repositories.Interfaces;
+using EntityFrameworkPlayground.Domain.DataTransferObjects;
 using EntityFrameworkPlayground.Domain.Entitities;
 using EntityFrameworkPlayground.Domain.Models;
 using Microsoft.AspNetCore.Mvc;

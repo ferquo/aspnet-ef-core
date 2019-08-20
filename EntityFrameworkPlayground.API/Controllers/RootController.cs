@@ -1,4 +1,4 @@
-﻿using EntityFrameworkPlayground.API.ViewModels;
+﻿using EntityFrameworkPlayground.Domain.DataTransferObjects;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 

@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using EntityFrameworkPlayground.API.ViewModels;
+using EntityFrameworkPlayground.Domain.DataTransferObjects;
 using EntityFrameworkPlayground.Domain.Entitities;
 
 namespace EntityFrameworkPlayground.API

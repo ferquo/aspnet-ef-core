@@ -1,4 +1,4 @@
-﻿namespace EntityFrameworkPlayground.API.ViewModels
+﻿namespace EntityFrameworkPlayground.Domain.DataTransferObjects
 {
     public class LinkDTO
     {

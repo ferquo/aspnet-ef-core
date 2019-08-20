@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace EntityFrameworkPlayground.API.ViewModels
+namespace EntityFrameworkPlayground.Domain.DataTransferObjects
 {
-    public class BookForUpdateDTO
+    public class BookForCreationDTO
     {
         [Required]
         [MinLength(5)]
