@@ -9,12 +9,12 @@ namespace EntityFrameworkPlayground.Service.Authors
     {
         private readonly IMapper mapper;
         private readonly IAuthorRepository authorRepository;
-        private readonly ICreateLinksStrategy createLinksStrategy;
+        private readonly ICreateAuthorLinksStrategy createLinksStrategy;
 
         public GetAuthorStrategy(
             IMapper mapper,
             IAuthorRepository authorRepository,
-            ICreateLinksStrategy createLinksStrategy)
+            ICreateAuthorLinksStrategy createLinksStrategy)
         {
             this.mapper = mapper;
             this.authorRepository = authorRepository;

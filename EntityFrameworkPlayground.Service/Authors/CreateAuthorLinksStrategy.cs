@@ -5,11 +5,11 @@ using System.Collections.Generic;
 
 namespace EntityFrameworkPlayground.Service.Authors
 {
-    public class CreateLinksStrategy : ICreateLinksStrategy
+    public class CreateAuthorLinksStrategy : ICreateAuthorLinksStrategy
     {
         private readonly IUrlHelper urlHelper;
 
-        public CreateLinksStrategy(IUrlHelper urlHelper)
+        public CreateAuthorLinksStrategy(IUrlHelper urlHelper)
         {
             this.urlHelper = urlHelper;
         }

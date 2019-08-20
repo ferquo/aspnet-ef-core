@@ -3,6 +3,7 @@ using EntityFrameworkPlayground.DataAccess;
 using EntityFrameworkPlayground.DataAccess.Repositories;
 using EntityFrameworkPlayground.DataAccess.Repositories.Interfaces;
 using EntityFrameworkPlayground.Service.Authors;
+using EntityFrameworkPlayground.Service.Books;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -39,9 +40,16 @@ namespace EntityFrameworkPlayground.API
             // Register Strategies
             services.AddTransient<IGetAuthorsStrategy, GetAuthorsStrategy>();
             services.AddTransient<IGetAuthorStrategy, GetAuthorStrategy>();
-            services.AddTransient<ICreateLinksStrategy, CreateLinksStrategy>();
+            services.AddTransient<ICreateAuthorLinksStrategy, CreateAuthorLinksStrategy>();
             services.AddTransient<ICreateAuthorStrategy, CreateAuthorStrategy>();
             services.AddTransient<IDeleteAuthorStrategy, DeleteAuthorStrategy>();
+
+            services.AddTransient<IGetBooksStrategy, GetBooksStrategy>();
+            services.AddTransient<IGetBookStrategy, GetBookStrategy>();
+            services.AddTransient<ICreateBookLinksStrategy, CreateBookLinksStrategy>();
+            services.AddTransient<ICreateBookStrategy, CreateBookStrategy>();
+            services.AddTransient<IUpdateBookStrategy, UpdateBookStrategy>();
+            services.AddTransient<IDeleteBookStrategy, DeleteBookStrategy>();
 
             // Auto Mapper Configurations
             var mappingConfig = new MapperConfiguration(mc =>
