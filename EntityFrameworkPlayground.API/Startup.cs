@@ -38,6 +38,7 @@ namespace EntityFrameworkPlayground.API
 
             // Register Strategies
             services.AddTransient<IGetAuthorsStrategy, GetAuthorsStrategy>();
+            services.AddTransient<IGetAuthorStrategy, GetAuthorStrategy>();
             services.AddTransient<ICreateLinksStrategy, CreateLinksStrategy>();
 
             // Auto Mapper Configurations

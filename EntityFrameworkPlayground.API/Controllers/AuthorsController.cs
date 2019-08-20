@@ -17,17 +17,20 @@ namespace EntityFrameworkPlayground.API.Controllers
         private readonly IMapper mapper;
         private readonly IAuthorRepository authorRepository;
         private readonly IGetAuthorsStrategy getAuthorsStrategy;
+        private readonly IGetAuthorStrategy getAuthorStrategy;
         private readonly IUrlHelper urlHelper;
 
         public AuthorsController(
             IMapper mapper,
             IAuthorRepository authorRepository,
             IGetAuthorsStrategy getAuthorsStrategy,
+            IGetAuthorStrategy getAuthorStrategy,
             IUrlHelper urlHelper)
         {
             this.mapper = mapper;
             this.authorRepository = authorRepository;
             this.getAuthorsStrategy = getAuthorsStrategy;
+            this.getAuthorStrategy = getAuthorStrategy;
             this.urlHelper = urlHelper;
         }
 
@@ -43,12 +46,12 @@ namespace EntityFrameworkPlayground.API.Controllers
         [HttpGet("{id}", Name = "GetAuthor")]
         public async Task<IActionResult> Get(int id)
         {
-            var author = await authorRepository.GetAuthorById(id);
+            var author = await getAuthorStrategy.GetAuthor(id);
             if (author == null)
             {
                 NotFound();
             }
-            return Ok(CreateLinksForAuthorResource(mapper.Map<AuthorDTO>(author)));
+            return Ok(author);
         }
 
         // POST: api/Authors
