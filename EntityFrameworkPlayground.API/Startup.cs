@@ -2,6 +2,7 @@
 using EntityFrameworkPlayground.DataAccess;
 using EntityFrameworkPlayground.DataAccess.Repositories;
 using EntityFrameworkPlayground.DataAccess.Repositories.Interfaces;
+using EntityFrameworkPlayground.Service.Authors;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -34,6 +35,10 @@ namespace EntityFrameworkPlayground.API
             //Register repositories
             services.AddScoped<IBooksRepository, BooksRepository>();
             services.AddScoped<IAuthorRepository, AuthorRepository>();
+
+            // Register Strategies
+            services.AddTransient<IGetAuthorsStrategy, GetAuthorsStrategy>();
+            services.AddTransient<ICreateLinksStrategy, CreateLinksStrategy>();
 
             // Auto Mapper Configurations
             var mappingConfig = new MapperConfiguration(mc =>

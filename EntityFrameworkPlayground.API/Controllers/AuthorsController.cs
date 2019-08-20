@@ -3,10 +3,9 @@ using EntityFrameworkPlayground.DataAccess.Repositories.Interfaces;
 using EntityFrameworkPlayground.Domain.DataTransferObjects;
 using EntityFrameworkPlayground.Domain.Entitities;
 using EntityFrameworkPlayground.Domain.Models;
+using EntityFrameworkPlayground.Service.Authors;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace EntityFrameworkPlayground.API.Controllers
@@ -17,87 +16,27 @@ namespace EntityFrameworkPlayground.API.Controllers
     {
         private readonly IMapper mapper;
         private readonly IAuthorRepository authorRepository;
+        private readonly IGetAuthorsStrategy getAuthorsStrategy;
         private readonly IUrlHelper urlHelper;
 
         public AuthorsController(
             IMapper mapper,
             IAuthorRepository authorRepository,
+            IGetAuthorsStrategy getAuthorsStrategy,
             IUrlHelper urlHelper)
         {
             this.mapper = mapper;
             this.authorRepository = authorRepository;
+            this.getAuthorsStrategy = getAuthorsStrategy;
             this.urlHelper = urlHelper;
         }
 
         // GET: api/authors
         [HttpGet(Name = "GetAuthors")]
-        public IActionResult Get([FromQuery]PagingResourceParameters paging, [FromHeader(Name = "Accept")]string mediaType)
+        public IActionResult Get([FromQuery]PagingResourceParameters paging)
         {
-            var authors = authorRepository.GetAllAuthors(paging);
-            var authorsToReturn = mapper.Map<IEnumerable<AuthorDTO>>(authors);
-            authorsToReturn = authorsToReturn.Select(author =>
-            {
-                author = CreateLinksForAuthorResource(author);
-                return author;
-            });
-
-            if (mediaType == "application/vnd.hateoas+json")
-            {
-                var authorsWrapper = new LinkedCollectionResourceWrapperDTO<AuthorDTO>(authorsToReturn);
-                return Ok(CreateLinksForAuthors(authorsWrapper, paging, authors.HasPrevious, authors.HasNext));
-            }
-            else
-            {
-                var previousPageLink = authors.HasPrevious ?
-                    CreateResourceUri(paging, ResourceUriType.PreviousPage) : null;
-                var nextPageLink = authors.HasNext ?
-                    CreateResourceUri(paging, ResourceUriType.NextPage) : null;
-                var paginationMetaData = new
-                {
-                    totalCount = authors.TotalCount,
-                    pageSize = authors.PageSize,
-                    currentPage = authors.CurrentPage,
-                    totalPages = authors.TotalPages,
-                    previousPageLink,
-                    nextPageLink
-                };
-                Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(paginationMetaData));
-
-                return Ok(authorsToReturn);
-            }
-        }
-
-        private string CreateResourceUri(
-            PagingResourceParameters pagingResourceParameters,
-            ResourceUriType type)
-        {
-            switch (type)
-            {
-                case ResourceUriType.PreviousPage:
-                    return urlHelper.Link("GetAuthors",
-                        new
-                        {
-                            searchQuery = pagingResourceParameters.SearchQuery,
-                            pageNumber = pagingResourceParameters.PageNumber - 1,
-                            pageSize = pagingResourceParameters.PageSize
-                        });
-                case ResourceUriType.NextPage:
-                    return urlHelper.Link("GetAuthors",
-                        new
-                        {
-                            searchQuery = pagingResourceParameters.SearchQuery,
-                            pageNumber = pagingResourceParameters.PageNumber + 1,
-                            pageSize = pagingResourceParameters.PageSize
-                        });
-                default:
-                    return urlHelper.Link("GetAuthors",
-                        new
-                        {
-                            searchQuery = pagingResourceParameters.SearchQuery,
-                            pageNumber = pagingResourceParameters.PageNumber,
-                            pageSize = pagingResourceParameters.PageSize
-                        });
-            }
+            var authorsToReturn = getAuthorsStrategy.GetAuthorsCollection(paging);
+            return Ok(authorsToReturn);
         }
 
         // GET: api/Authors/5
@@ -178,46 +117,5 @@ namespace EntityFrameworkPlayground.API.Controllers
             return author;
         }
 
-        private LinkedCollectionResourceWrapperDTO<AuthorDTO> CreateLinksForAuthors(
-            LinkedCollectionResourceWrapperDTO<AuthorDTO> authorsWrapper,
-            PagingResourceParameters pagingResourceParameters,
-            bool hasPrevious,
-            bool hasNext)
-        {
-            authorsWrapper.Links = new List<LinkDTO>();
-
-            authorsWrapper.Links.Add(new LinkDTO(
-                href: urlHelper.Link("GetAuthors", new { }),
-                rel: "self",
-                method: "GET"));
-
-            if (hasPrevious)
-            {
-                authorsWrapper.Links.Add(new LinkDTO(
-                    href: urlHelper.Link("GetAuthors", new
-                    {
-                        searchQuery = pagingResourceParameters.SearchQuery,
-                        pageNumber = pagingResourceParameters.PageNumber - 1,
-                        pageSize = pagingResourceParameters.PageSize
-                    }),
-                    rel: "previous",
-                    method: "GET"));
-            }
-
-            if (hasNext)
-            {
-                authorsWrapper.Links.Add(new LinkDTO(
-                    href: urlHelper.Link("GetAuthors", new
-                    {
-                        searchQuery = pagingResourceParameters.SearchQuery,
-                        pageNumber = pagingResourceParameters.PageNumber + 1,
-                        pageSize = pagingResourceParameters.PageSize
-                    }),
-                    rel: "next",
-                    method: "GET"));
-            }
-
-            return authorsWrapper;
-        }
     }
 }
