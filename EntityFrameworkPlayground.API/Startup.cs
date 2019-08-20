@@ -40,6 +40,8 @@ namespace EntityFrameworkPlayground.API
             services.AddTransient<IGetAuthorsStrategy, GetAuthorsStrategy>();
             services.AddTransient<IGetAuthorStrategy, GetAuthorStrategy>();
             services.AddTransient<ICreateLinksStrategy, CreateLinksStrategy>();
+            services.AddTransient<ICreateAuthorStrategy, CreateAuthorStrategy>();
+            services.AddTransient<IDeleteAuthorStrategy, DeleteAuthorStrategy>();
 
             // Auto Mapper Configurations
             var mappingConfig = new MapperConfiguration(mc =>

@@ -1,11 +1,7 @@
-﻿using AutoMapper;
-using EntityFrameworkPlayground.DataAccess.Repositories.Interfaces;
-using EntityFrameworkPlayground.Domain.DataTransferObjects;
-using EntityFrameworkPlayground.Domain.Entitities;
+﻿using EntityFrameworkPlayground.Domain.DataTransferObjects;
 using EntityFrameworkPlayground.Domain.Models;
 using EntityFrameworkPlayground.Service.Authors;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace EntityFrameworkPlayground.API.Controllers
@@ -14,24 +10,21 @@ namespace EntityFrameworkPlayground.API.Controllers
     [ApiController]
     public class AuthorsController : ControllerBase
     {
-        private readonly IMapper mapper;
-        private readonly IAuthorRepository authorRepository;
         private readonly IGetAuthorsStrategy getAuthorsStrategy;
         private readonly IGetAuthorStrategy getAuthorStrategy;
-        private readonly IUrlHelper urlHelper;
+        private readonly ICreateAuthorStrategy createAuthorStrategy;
+        private readonly IDeleteAuthorStrategy deleteAuthorStrategy;
 
         public AuthorsController(
-            IMapper mapper,
-            IAuthorRepository authorRepository,
             IGetAuthorsStrategy getAuthorsStrategy,
             IGetAuthorStrategy getAuthorStrategy,
-            IUrlHelper urlHelper)
+            ICreateAuthorStrategy createAuthorStrategy,
+            IDeleteAuthorStrategy deleteAuthorStrategy)
         {
-            this.mapper = mapper;
-            this.authorRepository = authorRepository;
             this.getAuthorsStrategy = getAuthorsStrategy;
             this.getAuthorStrategy = getAuthorStrategy;
-            this.urlHelper = urlHelper;
+            this.createAuthorStrategy = createAuthorStrategy;
+            this.deleteAuthorStrategy = deleteAuthorStrategy;
         }
 
         // GET: api/authors
@@ -62,9 +55,7 @@ namespace EntityFrameworkPlayground.API.Controllers
             {
                 return BadRequest();
             }
-            var authorEntity = mapper.Map<Author>(author);
-            await authorRepository.Create(authorEntity);
-            var authorToReturn = mapper.Map<AuthorDTO>(authorEntity);
+            var authorToReturn = await createAuthorStrategy.CreateAuthor(author);
             return Created("GetAuthor", authorToReturn);
         }
 
@@ -78,47 +69,14 @@ namespace EntityFrameworkPlayground.API.Controllers
         [HttpDelete("{id}", Name = "DeleteAuthor")]
         public async Task<IActionResult> Delete(int id)
         {
-            var authorExists = await authorRepository.Exists(id);
+            var authorExists = await deleteAuthorStrategy.Exists(id);
             if (!authorExists)
             {
                 return NotFound();
             }
 
-            await authorRepository.Delete(id);
+            await deleteAuthorStrategy.Delete(id);
             return NoContent();
         }
-
-        private AuthorDTO CreateLinksForAuthorResource(AuthorDTO author)
-        {
-            author.Links = new List<LinkDTO>();
-
-            author.Links.Add(new LinkDTO(
-                href: urlHelper.Link("GetAuthor", new { id = author.Id }),
-                rel: "self",
-                method: "GET"));
-
-            author.Links.Add(new LinkDTO(
-                href: urlHelper.Link("GetBooks", new { authorId = author.Id }),
-                rel: "children",
-                method: "GET"));
-
-            author.Links.Add(new LinkDTO(
-                href: urlHelper.Link("CreateAuthor", null),
-                rel: "create-author",
-                method: "POST"));
-
-            author.Links.Add(new LinkDTO(
-                href: urlHelper.Link("UpdateAuthor", new { id = author.Id }),
-                rel: "update-author",
-                method: "PUT"));
-
-            author.Links.Add(new LinkDTO(
-                href: urlHelper.Link("DeleteAuthor", new { id = author.Id }),
-                rel: "delete-author",
-                method: "DELETE"));
-
-            return author;
-        }
-
     }
 }
