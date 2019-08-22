@@ -4,6 +4,7 @@ using EntityFrameworkPlayground.DataAccess.Repositories;
 using EntityFrameworkPlayground.DataAccess.Repositories.Interfaces;
 using EntityFrameworkPlayground.Service.Authors;
 using EntityFrameworkPlayground.Service.Books;
+using EntityFrameworkPlayground.Service.Core;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -38,6 +39,8 @@ namespace EntityFrameworkPlayground.API
             services.AddScoped<IAuthorRepository, AuthorRepository>();
 
             // Register Strategies
+            services.AddTransient<IValidationStrategy, DefaultValidationStrategy>();
+
             services.AddTransient<IGetAuthorsStrategy, GetAuthorsStrategy>();
             services.AddTransient<IGetAuthorStrategy, GetAuthorStrategy>();
             services.AddTransient<ICreateAuthorLinksStrategy, CreateAuthorLinksStrategy>();

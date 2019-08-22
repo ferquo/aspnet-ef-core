@@ -3,9 +3,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace EntityFrameworkPlayground.Service.Core
 {
-    public interface IValidationStrategy<T> where T : class
+    public interface IValidationStrategy
     {
-        IList<ValidationResult> GetValidationResults(T model);
-        bool IsValid(T validateThis);
+        IList<ValidationResult> GetValidationResults<T>(T model) where T : class;
+        bool IsValid<T>(T validateThis) where T : class;
     }
 }
