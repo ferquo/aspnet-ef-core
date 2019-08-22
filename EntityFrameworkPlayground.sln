@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFrameworkPlayground.S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFrameworkPlayground.Service.Tests", "EntityFrameworkPlayground.Service.Tests\EntityFrameworkPlayground.Service.Tests.csproj", "{B007D37B-9FB6-4EE9-95B0-585158EC740C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFrameworkPlayground.API.Tests", "EntityFrameworkPlayground.API.Tests\EntityFrameworkPlayground.API.Tests.csproj", "{7745D45C-FF5E-4287-9A8A-2A1E51381648}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{B007D37B-9FB6-4EE9-95B0-585158EC740C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B007D37B-9FB6-4EE9-95B0-585158EC740C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B007D37B-9FB6-4EE9-95B0-585158EC740C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7745D45C-FF5E-4287-9A8A-2A1E51381648}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7745D45C-FF5E-4287-9A8A-2A1E51381648}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7745D45C-FF5E-4287-9A8A-2A1E51381648}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7745D45C-FF5E-4287-9A8A-2A1E51381648}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
