@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EntityFrameworkPlayground.A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFrameworkPlayground.Service", "EntityFrameworkPlayground.Service\EntityFrameworkPlayground.Service.csproj", "{D1FBB1F1-9A6D-4B0B-B2B7-1D000708EE8C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFrameworkPlayground.Service.Tests", "EntityFrameworkPlayground.Service.Tests\EntityFrameworkPlayground.Service.Tests.csproj", "{B007D37B-9FB6-4EE9-95B0-585158EC740C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{D1FBB1F1-9A6D-4B0B-B2B7-1D000708EE8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D1FBB1F1-9A6D-4B0B-B2B7-1D000708EE8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D1FBB1F1-9A6D-4B0B-B2B7-1D000708EE8C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B007D37B-9FB6-4EE9-95B0-585158EC740C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B007D37B-9FB6-4EE9-95B0-585158EC740C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B007D37B-9FB6-4EE9-95B0-585158EC740C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B007D37B-9FB6-4EE9-95B0-585158EC740C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

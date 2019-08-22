@@ -11,7 +11,7 @@ namespace EntityFrameworkPlayground.API
             #region Books
             CreateMap<Book, BookDTO>().ForMember(
                 dest => dest.Id,
-                opt => opt.MapFrom(src => src.BookId)); ;
+                opt => opt.MapFrom(src => src.BookId));
 
             CreateMap<BookForCreationDTO, Book>();
             CreateMap<BookForUpdateDTO, Book>();
