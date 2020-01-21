@@ -1,4 +1,5 @@
 ﻿using EntityFrameworkPlayground.DataAccess.Repositories.Interfaces;
+using EntityFrameworkPlayground.Domain.Exceptions;
 using System.Threading.Tasks;
 
 namespace EntityFrameworkPlayground.Service.Books
@@ -16,18 +17,20 @@ namespace EntityFrameworkPlayground.Service.Books
             this.authorsRepository = authorsRepository;
         }
 
-        public async Task<bool> BookExists(int id)
+        public async Task Delete(int authorId, int bookId)
         {
-            return await booksRepository.GetById(id) != null;
-        }
-        public async Task<bool> AuthorExists(int authorId)
-        {
-            return await authorsRepository.Exists(authorId);
-        }
+            if (await authorsRepository.Exists(authorId))
+            {
+                throw new NotFoundException("Author", authorId);
+            }
 
-        public async Task Delete(int id)
-        {
-            await booksRepository.Delete(id);
+            var bookToUpdate = await booksRepository.GetById(bookId);
+            if (await booksRepository.Exists(bookId))
+            {
+                throw new NotFoundException("Book", bookId);
+            }
+
+            await booksRepository.Delete(bookId);
         }
     }
 }

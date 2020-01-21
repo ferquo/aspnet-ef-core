@@ -84,25 +84,12 @@ namespace EntityFrameworkPlayground.API.Controllers
         [HttpPut("{id}", Name = "UpdateBook")]
         public async Task<IActionResult> Put(int authorId, int id, [FromBody] BookForUpdateDTO value)
         {
-
-            var authorExists = await updateBookStrategy.AuthorExists(authorId);
-            if (!authorExists)
-            {
-                return NotFound();
-            }
-
-            var bookExists = await updateBookStrategy.BookExists(id);
-            if (!bookExists)
-            {
-                return NotFound();
-            }
-
             if (!bookValidationStrategy.IsValid(value))
             {
                 return new UnprocessableEntityObjectResult(bookValidationStrategy.GetValidationResults(value));
             }
 
-            var updatedBook = await updateBookStrategy.UpdateBook(id, value);
+            var updatedBook = await updateBookStrategy.UpdateBook(authorId, id, value);
 
             return Ok(updatedBook);
         }
@@ -110,26 +97,14 @@ namespace EntityFrameworkPlayground.API.Controllers
         [HttpPatch("{id}", Name = "UpdatePartialBook")]
         public async Task<IActionResult> Patch(int authorId, int id, [FromBody] JsonPatchDocument<BookForUpdateDTO> patchDoc)
         {
-            var authorExists = await updateBookStrategy.AuthorExists(authorId);
-            if (!authorExists)
-            {
-                return NotFound();
-            }
-
-            var bookExists = await updateBookStrategy.BookExists(id);
-            if (!bookExists)
-            {
-                return NotFound();
-            }
-
-            var bookToPatch = await updateBookStrategy.ApplyPatch(id, patchDoc);
+            var bookToPatch = await updateBookStrategy.ApplyPatch(authorId, id, patchDoc);
 
             if (!bookValidationStrategy.IsValid(bookToPatch))
             {
                 return new UnprocessableEntityObjectResult(bookValidationStrategy.GetValidationResults(bookToPatch));
             }
 
-            var updatedBook = await updateBookStrategy.UpdateBook(id, bookToPatch);
+            var updatedBook = await updateBookStrategy.UpdateBook(authorId, id, bookToPatch);
 
             return Ok(updatedBook);
         }
@@ -138,19 +113,7 @@ namespace EntityFrameworkPlayground.API.Controllers
         [HttpDelete("{id}", Name = "DeleteBook")]
         public async Task<IActionResult> Delete(int authorId, int id)
         {
-            var authorExists = await deleteBookStrategy.AuthorExists(authorId);
-            if (!authorExists)
-            {
-                return NotFound();
-            }
-
-            var bookExists = await deleteBookStrategy.BookExists(id);
-            if (!bookExists)
-            {
-                return NotFound();
-            }
-
-            await deleteBookStrategy.Delete(id);
+            await deleteBookStrategy.Delete(authorId, id);
             return NoContent();
         }
     }

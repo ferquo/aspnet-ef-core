@@ -7,6 +7,7 @@ namespace EntityFrameworkPlayground.DataAccess.Repositories.Interfaces
 {
     public interface IBooksRepository : IGenericRepository<Book>
     {
+        Task<bool> Exists(int id);
         IEnumerable<Book> GetAllBooks();
         PagedList<Book> GetAllBooksByAuthor(int authorId, PagingResourceParameters paging);
         Task<Book> GetbyIdIncludeAuthor(int id);

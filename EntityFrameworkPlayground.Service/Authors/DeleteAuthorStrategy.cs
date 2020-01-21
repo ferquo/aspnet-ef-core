@@ -1,4 +1,5 @@
 ﻿using EntityFrameworkPlayground.DataAccess.Repositories.Interfaces;
+using EntityFrameworkPlayground.Domain.Exceptions;
 using System.Threading.Tasks;
 
 namespace EntityFrameworkPlayground.Service.Authors
@@ -13,13 +14,12 @@ namespace EntityFrameworkPlayground.Service.Authors
             this.authorRepository = authorRepository;
         }
 
-        public async Task<bool> Exists(int id)
-        {
-            return await authorRepository.Exists(id);
-        }
-
         public async Task Delete(int id)
         {
+            if (!await authorRepository.Exists(id))
+            {
+                throw new NotFoundException("Author", id);
+            }
             await authorRepository.Delete(id);
         }
     }

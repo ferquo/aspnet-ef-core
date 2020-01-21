@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using EntityFrameworkPlayground.DataAccess.Repositories.Interfaces;
 using EntityFrameworkPlayground.Domain.DataTransferObjects;
+using EntityFrameworkPlayground.Domain.Exceptions;
 using System.Threading.Tasks;
 
 namespace EntityFrameworkPlayground.Service.Authors
@@ -26,7 +27,7 @@ namespace EntityFrameworkPlayground.Service.Authors
             var author = await authorRepository.GetAuthorById(id);
             if (author == null)
             {
-                return null;
+                throw new NotFoundException("Author", id);
             }
             return createLinksStrategy.CreateLinksForAuthorResource(mapper.Map<AuthorDTO>(author));
         }

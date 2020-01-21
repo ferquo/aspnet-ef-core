@@ -40,10 +40,6 @@ namespace EntityFrameworkPlayground.API.Controllers
         public async Task<IActionResult> Get(int id)
         {
             var author = await getAuthorStrategy.GetAuthor(id);
-            if (author == null)
-            {
-                NotFound();
-            }
             return Ok(author);
         }
 
@@ -69,12 +65,6 @@ namespace EntityFrameworkPlayground.API.Controllers
         [HttpDelete("{id}", Name = "DeleteAuthor")]
         public async Task<IActionResult> Delete(int id)
         {
-            var authorExists = await deleteAuthorStrategy.Exists(id);
-            if (!authorExists)
-            {
-                return NotFound();
-            }
-
             await deleteAuthorStrategy.Delete(id);
             return NoContent();
         }

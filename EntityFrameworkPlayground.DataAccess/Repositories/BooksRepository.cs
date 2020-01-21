@@ -14,6 +14,9 @@ namespace EntityFrameworkPlayground.DataAccess.Repositories
             : base(db)
         { }
 
+        public async Task<bool> Exists(int id)
+            => await db.Books.AsNoTracking().AnyAsync(x => x.BookId == id);
+
         public IEnumerable<Book> GetAllBooks()
             => db.Books.AsNoTracking()
             .Include(x => x.Author)

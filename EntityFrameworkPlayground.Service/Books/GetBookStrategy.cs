@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using EntityFrameworkPlayground.DataAccess.Repositories.Interfaces;
 using EntityFrameworkPlayground.Domain.DataTransferObjects;
+using EntityFrameworkPlayground.Domain.Exceptions;
 using System.Threading.Tasks;
 
 namespace EntityFrameworkPlayground.Service.Books
@@ -26,7 +27,7 @@ namespace EntityFrameworkPlayground.Service.Books
             var book = await booksRepository.GetbyIdIncludeAuthor(bookId);
             if (book == null)
             {
-                return null;
+                throw new NotFoundException("Book", bookId);
             }
             return createLinksStrategy.CreateLinksForBookResource(mapper.Map<BookDTO>(book));
         }

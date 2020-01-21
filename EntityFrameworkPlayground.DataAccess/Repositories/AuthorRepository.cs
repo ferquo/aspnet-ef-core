@@ -35,7 +35,7 @@ namespace EntityFrameworkPlayground.DataAccess.Repositories
 
         public async Task<Author> GetAuthorById(int id)
         {
-            return await db.Authors.Include(x => x.Books).SingleAsync(x => x.AuthorId == id);
+            return await db.Authors.Include(x => x.Books).SingleOrDefaultAsync(x => x.AuthorId == id);
         }
 
         public async Task<bool> Exists(int id)
