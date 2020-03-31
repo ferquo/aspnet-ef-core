@@ -12,6 +12,8 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="8.1.1" />
     <PackageReference Include="FluentValidation" Version="8.6.1" />
+    <PackageReference Include="Microsoft.AspNetCore.JsonPatch" Version="5.0.0-preview.1.20124.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
   </ItemGroup>
 
   <ItemGroup>
