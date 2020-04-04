@@ -1,9 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using EntityFrameworkPlayground.Domain.Entitities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace EntityFrameworkPlayground.DataAccess
 {
-    public class BooksContext: DbContext
+    public class BooksContext: IdentityDbContext
     {
         public BooksContext(DbContextOptions<BooksContext> optionsBuilder)
             : base(optionsBuilder)

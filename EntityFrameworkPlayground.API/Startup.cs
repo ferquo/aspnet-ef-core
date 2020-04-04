@@ -6,17 +6,25 @@ using EntityFrameworkPlayground.DataAccess.Repositories.Interfaces;
 using EntityFrameworkPlayground.Service.Authors;
 using EntityFrameworkPlayground.Service.Books;
 using EntityFrameworkPlayground.Service.Core;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using System;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Text;
 
 namespace EntityFrameworkPlayground.API
 {
@@ -35,7 +43,36 @@ namespace EntityFrameworkPlayground.API
             services.AddDbContext<BooksContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            //Register repositories
+            // Add Authorization/Authentication
+            services.AddDefaultIdentity<IdentityUser>(options =>
+                                                  options.SignIn.RequireConfirmedEmail = false)
+                .AddEntityFrameworkStores<BooksContext>()
+                .AddDefaultTokenProviders();
+
+            // Add JSON Web Token access
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear(); // => remove default claims
+            services
+                .AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+
+                })
+                .AddJwtBearer(cfg =>
+                {
+                    cfg.RequireHttpsMetadata = false;
+                    cfg.SaveToken = true;
+                    cfg.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidIssuer = Configuration["JwtIssuer"],
+                        ValidAudience = Configuration["JwtIssuer"],
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JwtKey"])),
+                        ClockSkew = TimeSpan.Zero // remove delay of token when expire
+                    };
+                });
+
+            // Register repositories
             services.AddScoped<IBooksRepository, BooksRepository>();
             services.AddScoped<IAuthorRepository, AuthorRepository>();
 
@@ -79,6 +116,12 @@ namespace EntityFrameworkPlayground.API
                 {
                     jsonOutputFormatter.SupportedMediaTypes.Add("application/vnd.hateoas+json");
                 }
+
+                // Setup global authorization
+                var policy = new AuthorizationPolicyBuilder()
+                     .RequireAuthenticatedUser()
+                     .Build();
+                setupAction.Filters.Add(new AuthorizeFilter(policy));
             })
                 .AddJsonOptions(options =>
                 {
@@ -95,7 +138,7 @@ namespace EntityFrameworkPlayground.API
             //{
             //    app.UseDeveloperExceptionPage();
             //}
-
+            app.UseAuthentication();
             app.UseCustomExceptionHandler();
             app.UseMvc();
         }
