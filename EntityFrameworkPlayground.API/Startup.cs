@@ -30,6 +30,8 @@ namespace EntityFrameworkPlayground.API
 {
     public class Startup
     {
+        private readonly string originsPolicyName = "MY_ORIGINS_POLICY_NAME";
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -109,6 +111,20 @@ namespace EntityFrameworkPlayground.API
             IMapper mapper = mappingConfig.CreateMapper();
             services.AddSingleton(mapper);
 
+            // Allow any origin for CORS
+            services.AddCors(options =>
+            {
+                options.AddPolicy(originsPolicyName,
+                builder =>
+                {
+                    builder
+                        .AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .AllowCredentials();
+                });
+            });
+
             services.AddMvc(setupAction =>
             {
                 var jsonOutputFormatter = setupAction.OutputFormatters.OfType<JsonOutputFormatter>().FirstOrDefault();
@@ -140,6 +156,7 @@ namespace EntityFrameworkPlayground.API
             //}
             app.UseAuthentication();
             app.UseCustomExceptionHandler();
+            app.UseCors(originsPolicyName);
             app.UseMvc();
         }
     }

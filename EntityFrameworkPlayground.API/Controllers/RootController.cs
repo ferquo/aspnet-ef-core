@@ -10,7 +10,6 @@ namespace EntityFrameworkPlayground.API.Controllers
     public class RootController : ControllerBase
     {
         private readonly IUrlHelper urlHelper;
-        private readonly UserManager<IdentityUser> userManager;
 
         public RootController(IUrlHelper urlHelper)
         {
@@ -20,7 +19,6 @@ namespace EntityFrameworkPlayground.API.Controllers
         [HttpGet(Name = "GetRoot")]
         public IActionResult Get([FromHeader(Name = "Accept")]string mediaType)
         {
-            userManager.CreateAsync(new IdentityUser { Email = "f@f.com" }, "secure_password");
 
             if (mediaType == "application/vnd.hateoas+json")
             {
